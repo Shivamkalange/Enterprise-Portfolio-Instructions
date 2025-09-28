@@ -13,7 +13,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String SECRET_KEY = "your-very-very-long-secret-key-that-is-at-least-64-bytes-long-for-jwt-signing-12345";
+    private final String SECRET_KEY = "a-string-secret-at-least-256-bits-long";
     private final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 hours
     private final SecretKey secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
@@ -22,7 +22,7 @@ public class JwtUtil {
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(secretKey, SignatureAlgorithm.HS512)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
