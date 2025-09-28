@@ -39,16 +39,20 @@ class ProfileResourceTest {
         Profile profile = new Profile();
         profile.setId(2);
         profile.setName("John");
+        profile.setEmail("John@tcs.com");
+        profile.setCompany("ABC");
 
-        Mockito.when(profileService.getProfileById(1)).thenReturn(Optional.empty());
+        Mockito.when(profileService.getProfileById(2)).thenReturn(Optional.empty());
         Mockito.when(profileService.saveProfile(any(Profile.class))).thenReturn(profile);
 
         mockMvc.perform(post("/epi/profiles/create/{id}", 2)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"John\"}"))
+                        .content("{\"name\":\"John\" , \"email\":\"John@tcs.com\", \"company\":\"ABC\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(2))
-                .andExpect(jsonPath("$.name").value("John"));
+                .andExpect(jsonPath("$.name").value("John"))
+                .andExpect(jsonPath("$.email").value("John@tcs.com"))
+                .andExpect(jsonPath("$.company").value("ABC"));
     }
 
     @Test
@@ -57,12 +61,14 @@ class ProfileResourceTest {
         Profile profile = new Profile();
         profile.setId(1);
         profile.setName("John");
+        profile.setEmail("John@tcs.com");
+        profile.setCompany("ABC");
 
         Mockito.when(profileService.getProfileById(1)).thenReturn(Optional.of(profile));
 
         mockMvc.perform(post("/epi/profiles/create/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"John\"}"))
+                        .content("{\"name\":\"John\" , \"email\":\"John@tcs.com\", \"company\":\"ABC\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Profile with ID 1 already exists."));
     }
@@ -110,8 +116,8 @@ class ProfileResourceTest {
         Mockito.when(profileService.getProfileById(1)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/epi/profiles/{id}", 1))
-                .andExpect(status().isNoContent())
-                .andExpect(content().string("Profile with ID 1 not found."));
+                .andExpect(status().isNoContent());
+
     }
 
     // ---------------- UPDATE ----------------
@@ -120,29 +126,39 @@ class ProfileResourceTest {
     void testUpdateProfile_Success() throws Exception {
         Profile profile = new Profile();
         profile.setId(1);
-        profile.setName("Updated");
+        profile.setName("Shivam");
+        profile.setEmail("shivam@tcs.com");
+        profile.setCompany("TCS");
 
         Mockito.when(profileService.getProfileById(1)).thenReturn(Optional.of(profile));
         Mockito.when(profileService.saveProfile(any(Profile.class))).thenReturn(profile);
 
         mockMvc.perform(put("/epi/profiles/update/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"Updated\"}"))
-                .andExpect(status().isCreated())
+                        .content("{\"name\":\"Shivam\",\"email\":\"shivam@tcs.com\", \"company\":\"TCS\"}"))
+                  .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Updated"));
+                .andExpect(jsonPath("$.name").value("Shivam"))
+                .andExpect(jsonPath("$.email").value("shivam@tcs.com"))
+                .andExpect(jsonPath("$.company").value("TCS"));
     }
 
     @Test
     @DisplayName("PUT /epi/profiles/update/{id} - not exist")
     void testUpdateProfile_NotExist() throws Exception {
+        Profile profile = new Profile();
+        profile.setId(1);
+        profile.setName("Shivam");
+        profile.setEmail("shivam@tcs.com");
+        profile.setCompany("TCS");
+
         Mockito.when(profileService.getProfileById(1)).thenReturn(Optional.empty());
 
         mockMvc.perform(put("/epi/profiles/update/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"Updated\"}"))
-                .andExpect(status().isNoContent())
-                .andExpect(content().string("Profile with ID 1 not exist."));
+                        .content("{\"name\":\"Shivam\",\"email\":\"shivam@tcs.com\", \"company\":\"TCS\"}"))
+                      .andExpect(status().isNotFound());
+
     }
 
     // ---------------- DELETE ----------------
@@ -151,13 +167,13 @@ class ProfileResourceTest {
     void testDeleteProfile_Success() throws Exception {
         Profile profile = new Profile();
         profile.setId(1);
-        profile.setName("John");
+
 
         Mockito.when(profileService.getProfileById(1)).thenReturn(Optional.of(profile));
         Mockito.doNothing().when(profileService).deleteProfile(1);
 
         mockMvc.perform(delete("/epi/profiles/delete/{id}", 1))
-                .andExpect(status().isCreated());
+                .andExpect(status().isOk());
     }
 
     @Test

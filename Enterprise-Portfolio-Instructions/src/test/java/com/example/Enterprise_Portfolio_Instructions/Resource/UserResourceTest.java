@@ -100,17 +100,14 @@ class UserResourceTest {
     // ✅ Test: Failed login
     @Test
     void testLoginUser_Failure() throws Exception {
-        User user = new User();
-        user.setUsername("Shivam_23");
-        user.setPassword("wrongpassword");
-        Authentication auth = Mockito.mock(Authentication.class);
-        Mockito.when(authenticationManager.authenticate((any(UsernamePasswordAuthenticationToken.class)))).thenReturn(auth);
-        Mockito.when(auth.isAuthenticated()).thenReturn(false);
+        Mockito.when(authenticationManager.authenticate((any(UsernamePasswordAuthenticationToken.class))))
+                .thenThrow(new RuntimeException("Invalid credentials"));
+
         mockMvc.perform(post("/epi/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"Shivam_23\", \"password\":\"wrongpassword\"}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid user request"));
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Invalid credentials"));
     }
 
     // ✅ Test: Get all users
